@@ -1,0 +1,62 @@
+{{define "title"}}Check Websites Online Offline{{end}}
+
+{{define "content"}}
+<h3>Check Websites Online Offline</h3>
+<br>
+<a href="/" class="btn btn-default">Menu</a>
+
+<br>
+<br>
+
+<table class="table table-bordered">
+    <tbody id="data"></tbody>
+</table>
+
+<br>
+<br>
+
+<script>
+
+    getData();
+  
+    async function getData(){
+  
+        var adress = "";
+
+        document.getElementById("data").innerHTML = "Checking all websites in the list, please wait..."
+  
+        $.getJSON('configHtmlServer.json', function(data) {         
+          adress = data["adress"];
+        });
+  
+         const response = await fetch(adress + '/testserver/api/websites/checkall');
+         // console.log(response);
+         const data = await response.json();
+         // console.log(data);
+         length = data.length;
+         // console.log(length);
+         // console.log(data);
+         var temp="<tr><th>ID</th><th>Website Name</th><th>Website Adress</th><th>Online/Offline (true/false)</th></tr>";
+         for(i = 0; i < length; i++)
+         {           
+          
+              temp+="<tr>";
+              if(data[i].Check == true) {
+                temp+="<td class='success'>" + data[i].ID + "</td>";
+                temp+="<td class='success'>" + data[i].Name + "</td>";
+                temp+="<td class='success'>" + data[i].Adress + "</td>";
+                temp+="<td class='success'>" + data[i].Check + "</td>";
+              } else {
+                temp+="<td class='danger'>" + data[i].ID + "</td>";
+                temp+="<td class='danger'>" + data[i].Name + "</td>";
+                temp+="<td class='danger'>" + data[i].Adress + "</td>";
+                temp+="<td class='danger'>" + data[i].Check + "</td>";
+              }
+              temp+="</tr>";
+          }
+                                
+         document.getElementById("data").innerHTML=temp;
+   }
+
+  </script>
+{{end}}

@@ -1,0 +1,147 @@
+{{define "title"}}Edit Website{{end}}
+
+{{define "content"}}
+<h3 class="">Edit Website</h3>
+<br>
+<a href="/" class="btn btn-default">Menu</a>
+
+<br>
+<br>
+
+<form name="mywebsiteformular" id="mywebsiteformular">
+  <select name="id" id="id" class="form-control" onchange="getData()" onfocus="this.selectedIndex = -1;">
+    <option value=""></option>
+  </select><br>
+  <label for="name">New website name:</label><br>
+  <input type="text" id="name" name="name" value=""><br><br>
+  <label for="adress">New website adress:</label><br>
+  <input type="text" id="adress" name="adress" value=""><br><br>
+  <input type="submit" value="Update" class="btn btn-default">
+  <input type="reset" value="Reset" onclick="getAllWebsites();resetAlert()" class="btn btn-default">
+</form>
+
+<div id="data" class="alert alert-warning"></div>
+
+<script>
+
+getAllWebsites();
+
+async function getAllWebsites() {
+
+    var adress = "";
+
+    $.getJSON('configHtmlServer.json', function(data) {         
+        adress = data["adress"];
+    });
+
+    const response = await fetch(adress + '/testserver/api/websites');
+
+    const data = await response.json();
+
+    var temp = "";
+
+    // make the list option
+
+    for(i = 0; i < data.length; i++)  
+    {
+            temp += "<option value='" + data[i].ID + "' >" + data[i].ID + " " + data[i].Name + " " + data[i].Adress + "</option>";
+    }
+
+    if(temp == "") {
+        document.getElementById("id").outerHTML="<strong>There are no websites in the database!</strong>";
+    } else {
+        document.getElementById("id").innerHTML=temp;
+    }
+
+}
+
+async function getData() {
+  
+  var adress = ""
+
+  $.getJSON('configHtmlServer.json', function(data) {         
+      adress = data["adress"]
+  });
+
+  var id = document.getElementById('id').value;
+
+  const response = await fetch(adress + '/testserver/api/website/id/' + id);
+
+  const data = await response.json();
+
+  var temp = "";
+
+  if (data == "Website not found.") {
+    temp += "<p>Website not found.</p>";
+  }
+
+  else {
+
+    document.getElementById("name").value = data.Name;
+    document.getElementById("adress").value = data.Adress;
+    
+  }
+
+    document.getElementById("data").innerHTML=temp;
+
+}
+
+
+  function convertFormToJSON(form) {
+    const array = $(form).serializeArray(); // Encodes the set of form elements as an array of names and values.
+    const json = {};
+    $.each(array, function () {
+      if(this.value) {
+        json[this.name] = this.value;
+        //json[this.name] = this.value || "";
+      }
+    });
+    return json;
+  }
+
+  function resetAlert() {
+        document.getElementById("data").innerHTML="";
+  }
+
+  $("#mywebsiteformular").on("submit", function (e) {
+    e.preventDefault();
+    const form = $(e.target);
+    const json = convertFormToJSON(form);
+    console.log(json);
+
+    var xhr = new XMLHttpRequest();
+    var url = "/testserver/api/website/edit";
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    // sanitize numbers for json object instead of strings
+
+    for(var prop in json){
+      if(json.hasOwnProperty(prop) && !isNaN(json[prop])){
+          json[prop] = +json[prop];   
+        }
+    }
+    
+    console.log(JSON.stringify(json, null, 2));
+
+    // transform json obj to text
+
+    var dataText = JSON.stringify(json) 
+
+    // alert(dataText)
+  
+    xhr.send(dataText);
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState == XMLHttpRequest.DONE) {
+          if(xhr.responseText == 0) {
+            document.getElementById("data").innerHTML="There is already a website with that adress.";
+          } else {
+            document.getElementById("data").innerHTML="Website data has been modified.";
+          }
+        }
+      }
+  });
+
+</script>
+{{end}}

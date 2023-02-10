@@ -1,0 +1,74 @@
+{{define "title"}}Delete Website by ID{{end}}
+
+{{define "content"}}
+<h3 class="">Delete Website by ID</h3>
+<br>
+<a href="/" class="btn btn-default">Menu</a>
+<br>
+<br>
+<br>
+<form name="mywebsiteformular" id="mywebsiteformular">
+  <label for="website">Website ID:</label><br>
+  <select name="website" id="website" class="form-control" onfocus="this.selectedIndex = -1;">
+    <option value=""></option>
+  </select>
+  <br><br>
+  <input type="submit" onclick="deleteByID()" value="Delete Website" class="btn btn-default">
+  <input type="reset" value="Reset" class="btn btn-default">
+</form>
+
+<script>
+
+    getAllWebsites();
+
+    async function getAllWebsites() {
+
+        var adress = "";
+
+        $.getJSON('configHtmlServer.json', function(data) {         
+            adress = data["adress"];
+        });
+
+        const response = await fetch(adress + '/testserver/api/websites');
+
+        const data = await response.json();
+
+        var temp = "";
+
+        // make the list option
+
+        for(i = 0; i < data.length; i++)  
+        {
+                temp += "<option value='" + data[i].ID + "' >" + data[i].ID + " " + data[i].Name + " " + data[i].Adress + "</option>";
+        }
+
+        if(temp == "") {
+            document.getElementById("website").outerHTML="<strong>There are no websites in the database!</strong>";
+        } else {
+            document.getElementById("website").innerHTML=temp;
+        }
+
+    }
+
+    async function deleteByID() {
+
+        var adress = ""
+
+        $.getJSON('configHtmlServer.json', function(data) {         
+            adress = data["adress"]
+        });
+
+        var id = document.getElementById('website').value;
+
+        // console.log(document.getElementById('website').value);
+
+        fetch(adress + '/testserver/api/website/deleteid/' + id, {
+             method: 'DELETE',
+            }).then(res => res.text()).then(res => console.log(res));
+
+        // refresh course list
+        getAllWebsites();
+
+    }
+  </script>
+{{end}}

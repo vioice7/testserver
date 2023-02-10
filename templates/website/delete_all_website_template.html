@@ -1,0 +1,38 @@
+{{define "title"}}Delete All Websites{{end}}
+
+{{define "content"}}
+    <h3 class="">Delete All Websites</h1>
+    <br>
+    <a href="/" class="btn btn-default">Menu</a>
+    <br>
+    <br>
+    <br>
+    <a href="javascript:deleteAll();" class="btn btn-default">Clear all websites</a>
+    <br>
+    <br>
+    <br>
+    <div id="data" class="alert alert-warning"></div>
+
+    <script>
+        async function deleteAll() {
+ 
+         var adress = ""
+ 
+         $.getJSON('configHtmlServer.json', function(data) {         
+             adress = data["adress"]
+         });
+ 
+        fetch(adress + '/testserver/api/website/deleteall', {
+              method: 'DELETE',
+             }).then(res => res.text()).then(res => alertResult(res))
+        }
+
+        function alertResult(res) {
+            console.log(res);
+            if(res != 0) {
+                document.getElementById("data").innerHTML = "All " + res + " website(s) were deleted.";
+            }
+        }
+
+     </script>
+{{end}}

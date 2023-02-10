@@ -1,0 +1,128 @@
+{{define "title"}}Show All Websites{{end}}
+
+{{define "content"}}
+<h3>Show All Websites</h3>
+<br>
+<a href="/" class="btn btn-default">Menu</a>
+<br>
+<br>
+
+<div class="list-group col-md-4">
+  <a href="#" class="btn btn-default" onclick="downloadObjectAsJson()">Download As JSON</a>
+</div>
+
+<div class="list-group col-md-4">
+  <input type="file" id="selectFiles" class="btn btn-default" value="Upload" />
+</div>
+
+<div class="list-group col-md-4">
+  <a href="#" class="btn btn-default" id="upload">Upload As JSON</a>
+</div>
+
+<br>
+<br>
+
+<table class="table table-bordered">
+    <tbody id="data"></tbody>
+</table>
+
+
+
+<br>
+<br>
+
+<textarea id="result" class="col-md-12"></textarea>
+
+<script>
+
+    getData();
+  
+    async function getData(){
+  
+        var adress = "";
+  
+        $.getJSON('configHtmlServer.json', function(data) {         
+          adress = data["adress"];
+        });
+  
+         const response = await fetch(adress + '/testserver/api/websites');
+         // console.log(response);
+         const data = await response.json();
+         // console.log(data);
+         length = data.length;
+         // console.log(length);
+         // console.log(data);
+         var temp="<tr><th>ID</th><th>Website Name</th><th>Website Adress</th></tr>";
+         for(i = 0; i < length; i++)
+         {
+            temp+="<tr>";
+            temp+="<td>" + data[i].ID + "</td>";
+            temp+="<td>" + data[i].Name + "</td>";
+            temp+="<td>" + data[i].Adress + "</td>";
+            temp+="</tr>";
+         }
+  
+         document.getElementById("data").innerHTML=temp;
+   }
+  
+   async function downloadObjectAsJson() {
+
+    var adress = "";
+  
+    $.getJSON('configHtmlServer.json', function(data) {         
+      adress = data["adress"];
+    });
+
+    const response = await fetch(adress + '/testserver/api/websites');
+    const exportObj = await response.json();
+    // console.log(exportObj);
+    // scan each object and delete the ID of a key
+    Object.keys(exportObj).forEach(function(i){
+      delete exportObj[i]['ID']
+    });
+
+    console.log(exportObj);
+
+    exportName = "websites";
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+
+  }
+
+  //function uploadJson() {
+    document.getElementById('upload').onclick = function() {
+      var files = document.getElementById('selectFiles').files;
+      console.log(files);
+
+      if (files.length <= 0) {
+        return false;
+      }
+      
+      var fr = new FileReader();
+     
+      fr.onload = function(e) { 
+      console.log(e);
+        var result = JSON.parse(e.target.result);
+        var formatted = JSON.stringify(result, null, 2);
+        document.getElementById('result').value = formatted;
+
+        var xhr = new XMLHttpRequest();
+        var url = "/testserver/api/website/addmultiple";
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+      
+        xhr.send(formatted);
+
+      }
+      
+      fr.readAsText(files.item(0));
+    };
+  //}
+
+  </script>
+{{end}}

@@ -1,0 +1,73 @@
+{{define "title"}}Create Website{{end}}
+
+{{define "content"}}
+<h3>Create Website</h3>
+<br>
+<a href="/" class="btn btn-default">Menu</a>
+<br>
+<br>
+<br>
+
+<form name="mywebsiteformular" id="mywebsiteformular">
+  <label for="name">Website Name:</label><br>
+  <input type="text" id="name" name="name" value=""><br><br>
+  <label for="adress">Website Adress:</label><br>
+  <input type="text" id="adress" name="adress" value="" required><br><br>
+  <input type="submit" value="Create website" class="btn btn-default">
+  <input type="reset" value="Reset" onclick="resetAlert()" class="btn btn-default">
+</form>
+
+<div id="data" class="alert alert-warning"></div>
+
+<script>
+    function convertFormToJSON(form) {
+      const array = $(form).serializeArray(); // Encodes the set of form elements as an array of names and values.
+      const json = {};
+      $.each(array, function () {
+        if(this.value) {
+          json[this.name] = this.value;
+          //json[this.name] = this.value || "";
+        }
+      });
+      return json;
+    }
+
+    function resetAlert() {
+        document.getElementById("data").innerHTML="";
+    }
+
+    $("#mywebsiteformular").on("submit", function (e) {
+      e.preventDefault();
+      const form = $(e.target);
+      const json = convertFormToJSON(form);
+      console.log(json);
+      
+      var xhr = new XMLHttpRequest();
+      var url = "/testserver/api/website/add";
+      xhr.open("PUT", url, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+
+      // sanitize numbers for json object instead of strings
+      // only number is needed at the moment
+      
+      // json.number = +json.number
+
+      // transform json obj to text
+
+      var dataText = JSON.stringify(json) 
+    
+      xhr.send(dataText);
+
+      xhr.onreadystatechange = function() {
+      if (xhr.readyState == XMLHttpRequest.DONE) {
+          if(xhr.responseText == 0) {
+            document.getElementById("data").innerHTML="There is already a website with that adress.";
+          } else {
+            document.getElementById("data").innerHTML="A new website has been added.";
+          }
+        }
+      }
+
+    });
+</script>
+{{end}}
