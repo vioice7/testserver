@@ -16,14 +16,17 @@
 <br>
 
 <script>
-
     getData();
+
+    var interval = setInterval(function () {getData(); }, 30000);
   
-    async function getData(){
+    async function getData() {
   
         var adress = "";
 
-        document.getElementById("data").innerHTML = "Checking all websites in the list, please wait..."
+        document.getElementById("data").innerHTML = "Checking all websites in the list, please wait...";
+
+        document.title = "Checking websites ..."
   
         $.getJSON('configHtmlServer.json', function(data) {         
           adress = data["adress"];
@@ -56,7 +59,8 @@
           }
                                 
          document.getElementById("data").innerHTML=temp;
-   }
 
+         document.title = "Check Websites Online Offline";
+   }
   </script>
 {{end}}
