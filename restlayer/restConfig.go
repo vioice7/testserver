@@ -19,8 +19,8 @@ func restConfig(router *mux.Router) {
 	// localhost:8080/testserver/api/websites
 	restRouter.Methods("GET").Path("/websites").HandlerFunc(SelectAllWebsites)
 
-	//localhost:8080/testserver/api/website/{name}
-	restRouter.Methods("GET").Path("/website/{name}").HandlerFunc(SelectWebsiteBasedName)
+	//localhost:8080/testserver/api/website/name/{name}
+	restRouter.Methods("GET").Path("/website/name/{name}").HandlerFunc(SelectWebsiteBasedName)
 
 	//localhost:8080/testserver/api/website/id/{id}
 	restRouter.Methods("GET").Path("/website/id/{id}").HandlerFunc(SelectWebsiteBasedId)
