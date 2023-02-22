@@ -188,6 +188,7 @@ func CheckAllWebsites(response http.ResponseWriter, request *http.Request) {
 		_, err := http.Get("http://" + websites[i].Adress)
 		if err != nil {
 			websites[i].Check = false
+			fmt.Println(err.Error())
 		} else {
 			websites[i].Check = true
 		}
